@@ -11,7 +11,7 @@ solver:
   mixed_precision: 'fp16'
   enable_xformers_memory_efficient_attention: True 
   gradient_checkpointing: True 
-  max_train_steps: 200000
+  max_train_steps: 40000
   max_grad_norm: 1.0
   # lr
   learning_rate: 1e-5
