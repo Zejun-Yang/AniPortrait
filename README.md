@@ -23,45 +23,51 @@ audio and a reference portrait image. You can also provide a video to achieve fa
 
 ### Self driven
 
-<div class="row">
-<video id="video" controls="" preload="none" width="500">
-      <source id="mp4" src="asset/cxk.mp4" type="video/mp4">
-</video>
-<video id="video" controls="" preload="none" width="500">
-      <source id="mp4" src="asset/solo.mp4" type="video/mp4">
-</video>
-</div>
+<table class="center">
+<tr>
+    <td width=50% style="border: none">
+        <video controls autoplay loop src="https://github.com/Zejun-Yang/AniPortrait/assets/21038147/82c0f0b0-9c7c-4aad-bf0e-27e6098ffbe1" muted="false"></video>
+    </td>
+    <td width=50% style="border: none">
+        <video controls autoplay loop src="https://github.com/Zejun-Yang/AniPortrait/assets/21038147/51a502d9-1ce2-48d2-afbe-767a0b9b9166" muted="false"></video>
+    </td>
+</tr>
+</table>
 
 ### Face reenacment
 
-<div class="row">
-<video id="video" controls="" preload="none" width="500">
-      <source id="mp4" src="asset/Aragaki.mp4" type="video/mp4">
-</video>
-<video id="video" controls="" preload="none" width="500">
-      <source id="mp4" src="asset/num18.mp4" type="video/mp4">
-</video>
-</div>
+<table class="center">
+<tr>
+    <td width=50% style="border: none">
+        <video controls autoplay loop src="https://github.com/Zejun-Yang/AniPortrait/assets/21038147/849fce22-0db1-4257-a75f-a5dc655e6b9e" muted="false"></video>
+    </td>
+    <td width=50% style="border: none">
+        <video controls autoplay loop src="https://github.com/Zejun-Yang/AniPortrait/assets/21038147/d4e0add6-20a2-4f4b-808c-530a6f4d3331" muted="false"></video>
+    </td>
+</tr>
+</table>
 
 ### Audio driven
 
-<div class="row">
-<video id="video" controls="" preload="none" width="500">
-      <source id="mp4" src="asset/jijin.mp4" type="video/mp4">
-</video>
-<video id="video" controls="" preload="none" width="500">
-      <source id="mp4" src="asset/kara.mp4" type="video/mp4">
-</video>
-</div>
+<table class="center">
+<tr>
+    <td width=50% style="border: none">
+        <video controls autoplay loop src="https://github.com/Zejun-Yang/AniPortrait/assets/21038147/63171e5a-e4c1-4383-8f20-9764524928d0" muted="false"></video>
+    </td>
+    <td width=50% style="border: none">
+        <video controls autoplay loop src="https://github.com/Zejun-Yang/AniPortrait/assets/21038147/6fd74024-ba19-4f6b-b37a-10df5cf2c934" muted="false"></video>
+    </td>
+</tr>
 
-<div class="row">
-<video id="video" controls="" preload="none" width="500">
-      <source id="mp4" src="asset/lyl.mp4" type="video/mp4">
-</video>
-<video id="video" controls="" preload="none" width="500">
-      <source id="mp4" src="asset/zl.mp4" type="video/mp4">
-</video>
-</div>
+<tr>
+    <td width=50% style="border: none">
+        <video controls autoplay loop src="https://github.com/Zejun-Yang/AniPortrait/assets/21038147/9e516cc5-bf09-4d45-b5e3-820030764982" muted="false"></video>
+    </td>
+    <td width=50% style="border: none">
+        <video controls autoplay loop src="https://github.com/Zejun-Yang/AniPortrait/assets/21038147/7c68148b-8022-453f-be9a-c69590038197" muted="false"></video>
+    </td>
+</tr>
+</table>
 
 ## Installation
 
