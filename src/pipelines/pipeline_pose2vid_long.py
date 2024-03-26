@@ -450,8 +450,6 @@ class Pose2VideoPipeline(DiffusionPipeline):
         ref_pose_tensor = ref_pose_tensor.to(
             device=device, dtype=self.pose_guider.dtype
         )
-        
-        pose_fea = self.pose_guider(pose_cond_tensor, ref_pose_tensor)
 
         context_scheduler = get_context_scheduler(context_schedule)
 
@@ -529,19 +527,18 @@ class Pose2VideoPipeline(DiffusionPipeline):
                         latent_model_input, t
                     )
                     b, c, f, h, w = latent_model_input.shape
-                    latent_pose_input = []
-                    for idxx in range(len(pose_fea)):
-                        latent_pose_input.append(
-                                torch.cat(
-                                [pose_fea[idxx][:, :, c] for c in context]
-                            ).repeat(2 if do_classifier_free_guidance else 1, 1, 1, 1, 1)
-                        )
+                    pose_cond_input = (
+                        torch.cat([pose_cond_tensor[:, :, c] for c in context])
+                        .to(device)
+                        .repeat(2 if do_classifier_free_guidance else 1, 1, 1, 1, 1)
+                    )
+                    pose_fea = self.pose_guider(pose_cond_input, ref_pose_tensor)
 
                     pred = self.denoising_unet(
                         latent_model_input,
                         t,
                         encoder_hidden_states=encoder_hidden_states[:b],
-                        pose_cond_fea=latent_pose_input,
+                        pose_cond_fea=pose_fea,
                         return_dict=False,
                     )[0]
 
