@@ -145,7 +145,6 @@ def main():
                 pose_tensor_list.append(pose_transform(pose_image_pil))
                 pose_image_np = cv2.cvtColor(np.array(pose_image_pil), cv2.COLOR_RGB2BGR)
                 pose_image_np = cv2.resize(pose_image_np,  (width, height))
-                # pose_list.append(ref_pose)
                 pose_list.append(pose_image_np)
             
             pose_list = np.array(pose_list)
@@ -176,10 +175,8 @@ def main():
                 generator=generator,
             ).videos
 
-            # video = torch.cat([ref_image_tensor, pose_tensor, video], dim=0)
-            video = torch.cat([ref_image_tensor, video], dim=0)
-            tmp_time_str = datetime.now().strftime("%H%M")
-            save_path = f"{save_dir}/{ref_name}_{pose_name}_{args.H}x{args.W}_{int(args.cfg)}_{tmp_time_str}_noaudio.mp4"
+            video = torch.cat([ref_image_tensor, pose_tensor, video], dim=0)
+            save_path = f"{save_dir}/{ref_name}_{pose_name}_{args.H}x{args.W}_{int(args.cfg)}_{time_str}_noaudio.mp4"
             save_videos_grid(
                 video,
                 save_path,

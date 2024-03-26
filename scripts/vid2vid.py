@@ -209,8 +209,7 @@ def main():
             ).videos
 
             video = torch.cat([ref_image_tensor, video, src_tensor], dim=0)
-            tmp_time_str = datetime.now().strftime("%H%M")
-            save_path = f"{save_dir}/{ref_name}_{pose_name}_{args.H}x{args.W}_{int(args.cfg)}_{tmp_time_str}_noaudio.mp4"
+            save_path = f"{save_dir}/{ref_name}_{pose_name}_{args.H}x{args.W}_{int(args.cfg)}_{time_str}_noaudio.mp4"
             save_videos_grid(
                 video,
                 save_path,
