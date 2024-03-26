@@ -1,0 +1,15 @@
+pretrained_base_model_path: './pretrained_model/stable-diffusion-v1-5'
+pretrained_vae_path: './pretrained_model/sd-vae-ft-mse'
+image_encoder_path: './pretrained_model/image_encoder'
+
+denoising_unet_path: "./pretrained_model/denoising_unet.pth"
+reference_unet_path: "./pretrained_model/reference_unet.pth"
+pose_guider_path: "./pretrained_model/pose_guider.pth"
+motion_module_path: "./pretrained_model/motion_module.pth"
+
+inference_config: "./configs/inference/inference_v2.yaml"
+weight_dtype: 'fp16'
+
+test_cases:
+  "./configs/inference/ref_images/solo.png":
+    - "./configs/inference/pose_videos/solo_pose.mp4"

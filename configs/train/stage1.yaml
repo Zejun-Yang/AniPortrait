@@ -1,0 +1,59 @@
+data:
+  json_path: "/data/VFHQ/training_data.json"
+  sample_size:  [512, 512]
+  sample_stride: 4
+  sample_n_frames: 16
+
+solver:
+  gradient_accumulation_steps: 1
+  mixed_precision: 'fp16'
+  enable_xformers_memory_efficient_attention: True 
+  gradient_checkpointing: False 
+  max_train_steps: 300000
+  max_grad_norm: 1.0
+  # lr
+  learning_rate: 1.0e-5
+  scale_lr: False 
+  lr_warmup_steps: 1
+  lr_scheduler: 'constant'
+
+  # optimizer
+  use_8bit_adam: True 
+  adam_beta1: 0.9
+  adam_beta2: 0.999
+  adam_weight_decay:  1.0e-2
+  adam_epsilon: 1.0e-8
+
+val:
+  validation_steps: 500
+  validation_steps_tuple: [1, 10, 50, 100, 200, 500]
+
+
+noise_scheduler_kwargs:
+  num_train_timesteps: 1000
+  beta_start:          0.00085
+  beta_end:            0.012
+  beta_schedule:       "scaled_linear"
+  steps_offset:        1
+  clip_sample:         false
+
+base_model_path: './pretrained_model/stable-diffusion-v1-5'
+vae_model_path: './pretrained_model/sd-vae-ft-mse'
+image_encoder_path: './pretrained_model/image_encoder'
+controlnet_openpose_path: ''
+
+train_bs: 2
+
+weight_dtype: 'fp16'  # [fp16, fp32]
+uncond_ratio: 0.1
+noise_offset: 0.05
+snr_gamma: 5.0
+enable_zero_snr: True 
+pose_guider_pretrain: True 
+
+seed: 12580
+resume_from_checkpoint: ''
+checkpointing_steps: 2000
+save_model_epoch_interval: 5
+exp_name: 'stage1'
+output_dir: './exp_output'  
