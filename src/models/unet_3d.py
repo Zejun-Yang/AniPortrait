@@ -664,7 +664,25 @@ class UNet3DConditionModel(ModelMixin, ConfigMixin):
                 weights_only=True,
             )
         else:
-            raise FileNotFoundError(f"no weights file found in {pretrained_model_path}")
+            if pretrained_model_path.joinpath(SAFETENSORS_WEIGHTS_NAME).exists():
+            
+                logger.debug(
+                    f"loading safeTensors weights from {pretrained_model_path} ..."
+                )
+                state_dict = load_file(
+                    pretrained_model_path.joinpath(SAFETENSORS_WEIGHTS_NAME), device="cpu"
+                )
+            elif pretrained_model_path.joinpath(WEIGHTS_NAME).exists():
+                logger.debug(f"loading weights from {pretrained_model_path} ...")
+                state_dict = torch.load(
+                    pretrained_model_path.joinpath(WEIGHTS_NAME),
+                    map_location="cpu",
+                    weights_only=True,
+                )
+            else:
+                raise FileNotFoundError(
+                    f"no weights file found for {pretrained_model_path}"
+                )
 
         # load the motion module weights
         if motion_module_path.exists() and motion_module_path.is_file():
