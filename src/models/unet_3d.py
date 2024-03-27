@@ -661,7 +661,7 @@ class UNet3DConditionModel(ModelMixin, ConfigMixin):
             state_dict = torch.load(
                 pretrained_model_path,
                 map_location="cpu",
-                weights_only=True,
+                weights_only=False,
             )
         else:
             if pretrained_model_path.joinpath(SAFETENSORS_WEIGHTS_NAME).exists():
