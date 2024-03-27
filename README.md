@@ -19,6 +19,8 @@ audio and a reference portrait image. You can also provide a video to achieve fa
 
 - [x] Now our paper is available on arXiv.
 
+- [x] Update the code to generate pose_temp.npy for head pose control.
+
 - [ ] We will release audio2pose pre-trained weight for audio2video after futher optimization. You can choose head pose template in `./configs/inference/head_pose_temp` as substitution.
 
 ## Various Generated Videos
@@ -161,6 +163,12 @@ python -m scripts.audio2vid --config ./configs/prompts/animation_audio.yaml -W 5
 ```
 
 Add audios and reference images in the animation_audio.yaml.
+
+You can use this command to generate a pose_temp.npy for head pose control:
+
+```shell
+python -m scripts.generate_ref_pose --ref_video ./configs/inference/head_pose_temp/pose_ref_video.mp4 --save_path ./configs/inference/head_pose_temp/pose.npy
+```
 
 ## Training
 
