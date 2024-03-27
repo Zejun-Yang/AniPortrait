@@ -9,15 +9,17 @@ Tencent Games Zhiji, Tencent
 Here we propose AniPortrait, a novel framework for generating high-quality animation driven by 
 audio and a reference portrait image. You can also provide a video to achieve face reenacment.
 
+<a href='https://arxiv.org/abs/2403.17694'><img src='https://img.shields.io/badge/Paper-Arxiv-red'></a>
+
 ## Pipeline
 
 ![pipeline](asset/pipeline.png)
 
 ## TODO List
 
-- We will release audio2pose pre-trained weight for audio2video after futher optimization. You can choose head pose template in `./configs/inference/head_pose_temp` as substitution.
+- [x] Now our paper is available on arXiv.
 
-- More framework details are shown in the paper, which will be published soon.
+- [ ] We will release audio2pose pre-trained weight for audio2video after futher optimization. You can choose head pose template in `./configs/inference/head_pose_temp` as substitution.
 
 ## Various Generated Videos
 
@@ -207,3 +209,15 @@ accelerate launch train_stage_2.py --config ./configs/train/stage2.yaml
 
 We first thank the authors of [EMO](https://github.com/HumanAIGC/EMO). Additionally, we would like to thank the contributors to the [Moore-AnimateAnyone](https://github.com/MooreThreads/Moore-AnimateAnyone), [majic-animate](https://github.com/magic-research/magic-animate), [animatediff](https://github.com/guoyww/AnimateDiff) and [Open-AnimateAnyone](https://github.com/guoqincode/Open-AnimateAnyone) repositories, for their open research and exploration.
 
+## Citation
+
+```
+@misc{wei2024aniportrait,
+      title={AniPortrait: Audio-Driven Synthesis of Photorealistic Portrait Animations}, 
+      author={Huawei Wei and Zejun Yang and Zhisheng Wang},
+      year={2024},
+      eprint={2403.17694},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}
+```
