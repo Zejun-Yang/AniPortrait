@@ -590,7 +590,7 @@ class UNet3DConditionModel(ModelMixin, ConfigMixin):
     ):
         pretrained_model_path = Path(pretrained_model_path)
         motion_module_path = Path(motion_module_path)
-        if subfolder is not None:
+        if not pretrained_model_path.is_file() and subfolder is not None:
             pretrained_model_path = pretrained_model_path.joinpath(subfolder)
         logger.info(
             f"loaded temporal unet's pretrained weights from {pretrained_model_path} ..."
@@ -598,38 +598,68 @@ class UNet3DConditionModel(ModelMixin, ConfigMixin):
 
         config_file = pretrained_model_path / "config.json"
         if not (config_file.exists() and config_file.is_file()):
-            raise RuntimeError(f"{config_file} does not exist or is not a file")
-
-        unet_config = cls.load_config(config_file)
-        unet_config["_class_name"] = cls.__name__
-        unet_config["down_block_types"] = [
-            "CrossAttnDownBlock3D",
-            "CrossAttnDownBlock3D",
-            "CrossAttnDownBlock3D",
-            "DownBlock3D",
-        ]
-        unet_config["up_block_types"] = [
-            "UpBlock3D",
-            "CrossAttnUpBlock3D",
-            "CrossAttnUpBlock3D",
-            "CrossAttnUpBlock3D",
-        ]
-        unet_config["mid_block_type"] = "UNetMidBlock3DCrossAttn"
+            unet_config = {
+                "_class_name": "UNet2DConditionModel",
+                "_diffusers_version": "0.6.0",
+                "act_fn": "silu",
+                "attention_head_dim": 8,
+                "block_out_channels": [320, 640, 1280, 1280],
+                "center_input_sample": False,
+                "cross_attention_dim": 768,
+                "down_block_types": [
+                    "CrossAttnDownBlock3D",
+                    "CrossAttnDownBlock3D",
+                    "CrossAttnDownBlock3D",
+                    "DownBlock3D",
+                ],
+                "downsample_padding": 1,
+                "flip_sin_to_cos": True,
+                "freq_shift": 0,
+                "in_channels": 4,
+                "layers_per_block": 2,
+                "mid_block_scale_factor": 1,
+                "norm_eps": 1e-05,
+                "norm_num_groups": 32,
+                "out_channels": 4,
+                "sample_size": 64,
+                "up_block_types": [
+                    "UpBlock3D",
+                    "CrossAttnUpBlock3D",
+                    "CrossAttnUpBlock3D",
+                    "CrossAttnUpBlock3D",
+                ],
+            }
+        else:
+            unet_config = cls.load_config(config_file)
+            unet_config["_class_name"] = cls.__name__
+            unet_config["down_block_types"] = [
+                "CrossAttnDownBlock3D",
+                "CrossAttnDownBlock3D",
+                "CrossAttnDownBlock3D",
+                "DownBlock3D",
+            ]
+            unet_config["up_block_types"] = [
+                "UpBlock3D",
+                "CrossAttnUpBlock3D",
+                "CrossAttnUpBlock3D",
+                "CrossAttnUpBlock3D",
+            ]
+            unet_config["mid_block_type"] = "UNetMidBlock3DCrossAttn"
 
         model = cls.from_config(unet_config, **unet_additional_kwargs)
         # load the vanilla weights
-        if pretrained_model_path.joinpath(SAFETENSORS_WEIGHTS_NAME).exists():
+        if str(pretrained_model_path).endswith(".safetensors"):
             logger.debug(
                 f"loading safeTensors weights from {pretrained_model_path} ..."
             )
             state_dict = load_file(
-                pretrained_model_path.joinpath(SAFETENSORS_WEIGHTS_NAME), device="cpu"
+                pretrained_model_path, device="cpu"
             )
 
-        elif pretrained_model_path.joinpath(WEIGHTS_NAME).exists():
+        elif str(pretrained_model_path).endswith(".ckpt"):
             logger.debug(f"loading weights from {pretrained_model_path} ...")
             state_dict = torch.load(
-                pretrained_model_path.joinpath(WEIGHTS_NAME),
+                pretrained_model_path,
                 map_location="cpu",
                 weights_only=True,
             )
