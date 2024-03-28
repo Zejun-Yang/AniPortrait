@@ -6,6 +6,8 @@ Huawei Wei, Zejun Yang, Zhisheng Wang
 
 Tencent Games Zhiji, Tencent
 
+![zhiji_logo](asset/zhiji_logo.png)
+
 Here we propose AniPortrait, a novel framework for generating high-quality animation driven by 
 audio and a reference portrait image. You can also provide a video to achieve face reenacment.
 
@@ -215,7 +217,7 @@ accelerate launch train_stage_2.py --config ./configs/train/stage2.yaml
 
 ## Acknowledgements
 
-We first thank the authors of [EMO](https://github.com/HumanAIGC/EMO). Additionally, we would like to thank the contributors to the [Moore-AnimateAnyone](https://github.com/MooreThreads/Moore-AnimateAnyone), [majic-animate](https://github.com/magic-research/magic-animate), [animatediff](https://github.com/guoyww/AnimateDiff) and [Open-AnimateAnyone](https://github.com/guoqincode/Open-AnimateAnyone) repositories, for their open research and exploration.
+We first thank the authors of [EMO](https://github.com/HumanAIGC/EMO), and part of the images and audios in our demos are from EMO. Additionally, we would like to thank the contributors to the [Moore-AnimateAnyone](https://github.com/MooreThreads/Moore-AnimateAnyone), [majic-animate](https://github.com/magic-research/magic-animate), [animatediff](https://github.com/guoyww/AnimateDiff) and [Open-AnimateAnyone](https://github.com/guoqincode/Open-AnimateAnyone) repositories, for their open research and exploration.
 
 ## Citation
 
