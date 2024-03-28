@@ -139,7 +139,17 @@ Note: If you have installed some of the pretrained models, such as `StableDiffus
 Here are the cli commands for running inference scripts:
 
 **Kindly note that increasing L will lead to the creation of a longer video.**
-
+```
+there are such parameters for video script below:
+    --config, str, path to yaml file, default value as example
+    -W, int, width of video, default 512
+    -H, int, height of video, default 512
+    -L, int, length of video frames, default 16
+    --seed, int, seed of Stable Diffusion, default 42
+    --cfg, float, cfg value of Stable Diffusion, default 3.5
+    --steps, int, default 25
+    --fps, int, fps of video, default 30
+```
 ### Self driven
 
 ```shell
