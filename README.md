@@ -138,6 +138,8 @@ Note: If you have installed some of the pretrained models, such as `StableDiffus
 
 Here are the cli commands for running inference scripts:
 
+**Kindly note that increasing L will lead to the creation of a longer video.**
+
 ### Self driven
 
 ```shell
