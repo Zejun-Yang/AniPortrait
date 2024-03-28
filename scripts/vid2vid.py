@@ -118,12 +118,6 @@ def main():
 
     lmk_extractor = LMKExtractor()
     vis = FaceMeshVisualizer(forehead_edge=False)
-    
-    try:
-        print("Trying to enable Xformers memory efficient attention.")
-        pipe.enable_xformers_memory_efficient_attention()
-    except AttributeError:
-        print("Xformers not available. Using standard transformers.")
 
     for ref_image_path in config["test_cases"].keys():
         # Each ref_image may correspond to multiple actions
