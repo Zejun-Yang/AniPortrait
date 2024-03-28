@@ -138,12 +138,12 @@ Note: If you have installed some of the pretrained models, such as `StableDiffus
 
 Here are the cli commands for running inference scripts:
 
-**Kindly note that increasing L will lead to the creation of a longer video.**
+**Kindly note that you can set -L to the desired number of generating frames in the command, for example, -L 300.**
 
 ### Self driven
 
 ```shell
-python -m scripts.pose2vid --config ./configs/prompts/animation.yaml -W 512 -H 512 -L 64
+python -m scripts.pose2vid --config ./configs/prompts/animation.yaml -W 512 -H 512
 ```
 
 You can refer the format of animation.yaml to add your own reference images or pose videos. To convert the raw video into a pose video (keypoint sequence), you can run with the following command:
@@ -155,7 +155,7 @@ python -m scripts.vid2pose --video_path pose_video_path.mp4
 ### Face reenacment
 
 ```shell
-python -m scripts.vid2vid --config ./configs/prompts/animation_facereenac.yaml -W 512 -H 512 -L 64
+python -m scripts.vid2vid --config ./configs/prompts/animation_facereenac.yaml -W 512 -H 512
 ```
 
 Add source face videos and reference images in the animation_facereenac.yaml.
@@ -163,7 +163,7 @@ Add source face videos and reference images in the animation_facereenac.yaml.
 ### Audio driven
 
 ```shell
-python -m scripts.audio2vid --config ./configs/prompts/animation_audio.yaml -W 512 -H 512 -L 64
+python -m scripts.audio2vid --config ./configs/prompts/animation_audio.yaml -W 512 -H 512
 ```
 
 Add audios and reference images in the animation_audio.yaml.
