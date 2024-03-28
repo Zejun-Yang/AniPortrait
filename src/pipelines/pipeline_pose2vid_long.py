@@ -527,6 +527,7 @@ class Pose2VideoPipeline(DiffusionPipeline):
                         latent_model_input, t
                     )
                     b, c, f, h, w = latent_model_input.shape
+                    
                     pose_cond_input = (
                         torch.cat([pose_cond_tensor[:, :, c] for c in context])
                         .to(device)
