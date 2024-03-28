@@ -35,7 +35,7 @@ def parse_args():
     parser.add_argument("--config", type=str, default='./configs/prompts/animation_facereenac.yaml')
     parser.add_argument("-W", type=int, default=512)
     parser.add_argument("-H", type=int, default=512)
-    parser.add_argument("-L", type=int, default=16)
+    parser.add_argument("-L", type=int)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--cfg", type=float, default=3.5)
     parser.add_argument("--steps", type=int, default=25)
@@ -152,7 +152,8 @@ def main():
             verts_list = []
             bs_list = []
             src_tensor_list = []
-            for src_image_pil in source_images[: args.L*step: step]:
+            args_L = len(source_images) if args.L is None else args.L*step
+            for src_image_pil in source_images[: args_L: step]:
                 src_tensor_list.append(pose_transform(src_image_pil))
                 src_img_np = cv2.cvtColor(np.array(src_image_pil), cv2.COLOR_RGB2BGR)
                 frame_height, frame_width, _ = src_img_np.shape

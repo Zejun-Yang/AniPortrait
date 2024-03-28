@@ -38,7 +38,7 @@ def parse_args():
     parser.add_argument("--config", type=str, default='./configs/prompts/animation_audio.yaml')
     parser.add_argument("-W", type=int, default=512)
     parser.add_argument("-H", type=int, default=512)
-    parser.add_argument("-L", type=int, default=16)
+    parser.add_argument("-L", type=int)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--cfg", type=float, default=3.5)
     parser.add_argument("--steps", type=int, default=25)
@@ -172,7 +172,8 @@ def main():
             pose_transform = transforms.Compose(
                 [transforms.Resize((height, width)), transforms.ToTensor()]
             )
-            for pose_image_np in pose_images[: args.L]:
+            args_L = len(pose_images) if args.L is None else args.L
+            for pose_image_np in pose_images[: args_L]:
                 pose_image_pil = Image.fromarray(cv2.cvtColor(pose_image_np, cv2.COLOR_BGR2RGB))
                 pose_tensor_list.append(pose_transform(pose_image_pil))
                 pose_image_np = cv2.resize(pose_image_np,  (width, height))
