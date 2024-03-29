@@ -82,6 +82,7 @@ audio and a reference portrait image. You can also provide a video to achieve fa
 We recommend a python version >=3.10 and cuda version =11.7. Then build environment as follows:
 
 ```shell
+conda install ffmpeg
 pip install -r requirements.txt
 ```
 
