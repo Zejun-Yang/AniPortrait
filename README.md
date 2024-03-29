@@ -1,10 +1,10 @@
 # AniPortrait
 
-AniPortrait: Audio-Driven Synthesis of Photorealistic Portrait Animations
+**AniPortrait: Audio-Driven Synthesis of Photorealistic Portrait Animations**
 
-Huawei Wei, Zejun Yang, Zhisheng Wang
+Author: Huawei Wei, Zejun Yang, Zhisheng Wang
 
-Tencent Games Zhiji, Tencent
+Organization: Tencent Games Zhiji, Tencent
 
 ![zhiji_logo](asset/zhiji_logo.png)
 
