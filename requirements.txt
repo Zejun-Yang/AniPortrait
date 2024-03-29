@@ -28,3 +28,4 @@ controlnet-aux==0.0.7
 mediapipe==0.10.11
 librosa==0.9.2
 ffmpeg-python==0.2.0
+ffmpeg
