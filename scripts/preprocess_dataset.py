@@ -89,14 +89,14 @@ def main():
         pbar.update(1)
         output_subdir = os.path.join(args.output_dir, os.path.basename(folder))
         os.makedirs(output_subdir, exist_ok=True)
-        for img_file in sorted(glob.glob(os.path.join(folder, "*.jpg"))):
+        for img_file in sorted(glob.glob(os.path.join(folder, "*.png"))):
             base = os.path.basename(img_file)
             lmks_output_file = os.path.join(output_subdir, os.path.splitext(base)[0] + "_lmks.npy")
             lmks3d_output_file = os.path.join(output_subdir, os.path.splitext(base)[0] + "_lmks3d.npy")
             trans_mat_output_file = os.path.join(output_subdir, os.path.splitext(base)[0] + "_trans_mat.npy")
             bs_output_file = os.path.join(output_subdir, os.path.splitext(base)[0] + "_bs.npy")
                 
-            img = cv2.imread(img_file)[:600, 650:1350]
+            img = cv2.imread(img_file)
             result = lmk_extractor(img)
     
             if result is not None:
