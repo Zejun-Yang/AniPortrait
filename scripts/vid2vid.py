@@ -20,7 +20,7 @@ from transformers import CLIPVisionModelWithProjection
 
 from configs.prompts.test_cases import TestCasesDict
 from src.models.pose_guider import PoseGuider
-from src.models.unet_2d_condition import UNet2DConditionModel
+from src.models.model_util import load_models, torch_gc, get_torch_device
 from src.models.unet_3d import UNet3DConditionModel
 from src.pipelines.pipeline_pose2vid_long import Pose2VideoPipeline
 from src.utils.util import get_fps, read_frames, save_videos_grid
@@ -54,14 +54,17 @@ def main():
     else:
         weight_dtype = torch.float32
 
-    vae = AutoencoderKL.from_pretrained(
-        config.pretrained_vae_path,
-    ).to("cuda", dtype=weight_dtype)
+    device = get_torch_device()
 
-    reference_unet = UNet2DConditionModel.from_pretrained(
-        config.pretrained_base_model_path,
-        subfolder="unet",
-    ).to(dtype=weight_dtype, device="cuda")
+    (_,_,unet,_,vae,) = load_models(
+                    config.pretrained_base_model_path,
+                    scheduler_name="",
+                    v2=False,
+                    v_pred=False,
+                    weight_dtype=weight_dtype,
+                )
+    vae = vae.to(device, dtype=weight_dtype)
+    reference_unet = unet.to(dtype=weight_dtype, device=device)
 
     inference_config_path = config.inference_config
     infer_config = OmegaConf.load(inference_config_path)
@@ -70,13 +73,13 @@ def main():
         config.motion_module_path,
         subfolder="unet",
         unet_additional_kwargs=infer_config.unet_additional_kwargs,
-    ).to(dtype=weight_dtype, device="cuda")
+    ).to(dtype=weight_dtype, device=device)
 
-    pose_guider = PoseGuider(noise_latent_channels=320, use_ca=True).to(device="cuda", dtype=weight_dtype) # not use cross attention
+    pose_guider = PoseGuider(noise_latent_channels=320, use_ca=True).to(device=device, dtype=weight_dtype) # not use cross attention
 
     image_enc = CLIPVisionModelWithProjection.from_pretrained(
         config.image_encoder_path
-    ).to(dtype=weight_dtype, device="cuda")
+    ).to(dtype=weight_dtype, device=device)
 
     sched_kwargs = OmegaConf.to_container(infer_config.noise_scheduler_kwargs)
     scheduler = DDIMScheduler(**sched_kwargs)
@@ -105,7 +108,7 @@ def main():
         pose_guider=pose_guider,
         scheduler=scheduler,
     )
-    pipe = pipe.to("cuda", dtype=weight_dtype)
+    pipe = pipe.to(device, dtype=weight_dtype)
 
     date_str = datetime.now().strftime("%Y%m%d")
     time_str = datetime.now().strftime("%H%M")
@@ -225,7 +228,7 @@ def main():
             stream = ffmpeg.input(save_path)
             audio = ffmpeg.input(audio_output)
             ffmpeg.output(stream.video, audio.audio, save_path.replace('_noaudio.mp4', '.mp4'), vcodec='copy', acodec='aac').run()
-            
+            torch_gc()
             os.remove(save_path)
             os.remove(audio_output)
 
