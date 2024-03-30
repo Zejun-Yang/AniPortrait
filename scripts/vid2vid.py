@@ -62,6 +62,7 @@ def main():
         config.pretrained_base_model_path,
         subfolder="unet",
     ).to(dtype=weight_dtype, device="cuda")
+     
 
     inference_config_path = config.inference_config
     infer_config = OmegaConf.load(inference_config_path)
@@ -117,7 +118,6 @@ def main():
 
     lmk_extractor = LMKExtractor()
     vis = FaceMeshVisualizer(forehead_edge=False)
-    
 
     for ref_image_path in config["test_cases"].keys():
         # Each ref_image may correspond to multiple actions
@@ -143,73 +143,106 @@ def main():
                 [transforms.Resize((height, width)), transforms.ToTensor()]
             )
             
-            step = 1
-            if src_fps == 60:
-                src_fps = 30
-                step = 2
+            # step = 1
+            # if src_fps == 60:
+            #     src_fps = 30
+            #     step = 2
             
-            pose_trans_list = []
-            verts_list = []
-            bs_list = []
-            src_tensor_list = []
-            args_L = len(source_images) if args.L is None else args.L*step
-            for src_image_pil in source_images[: args_L: step]:
-                src_tensor_list.append(pose_transform(src_image_pil))
-                src_img_np = cv2.cvtColor(np.array(src_image_pil), cv2.COLOR_RGB2BGR)
-                frame_height, frame_width, _ = src_img_np.shape
-                src_img_result = lmk_extractor(src_img_np)
-                if src_img_result is None:
-                    break
-                pose_trans_list.append(src_img_result['trans_mat'])
-                verts_list.append(src_img_result['lmks3d'])
-                bs_list.append(src_img_result['bs'])
+            args_L = len(source_images) if args.L is None else args.L
 
+            total_frames = len(source_images)
+            batch_size = total_frames // args_L
+            if total_frames % args_L != 0:
+                batch_size += 1
             
-            pose_arr = np.array(pose_trans_list)
-            verts_arr = np.array(verts_list)
-            bs_arr = np.array(bs_list)
-            min_bs_idx = np.argmin(bs_arr.sum(1))
-
-            # face retarget
-            verts_arr = verts_arr - verts_arr[min_bs_idx] + face_result['lmks3d']
-            # project 3D mesh to 2D landmark
-            projected_vertices = project_points_with_trans(verts_arr, pose_arr, [frame_height, frame_width])
             
-            pose_list = []
-            for i, verts in enumerate(projected_vertices):
-                lmk_img = vis.draw_landmarks((frame_width, frame_height), verts, normed=False)
-                pose_image_np = cv2.resize(lmk_img,  (width, height))
-                pose_list.append(pose_image_np)
-            
-            pose_list = np.array(pose_list)
-            
-            video_length = len(src_tensor_list)
+            video_list = None
+            ref_image_list = None
+            ref_src_tensor_list = None
 
-            ref_image_tensor = pose_transform(ref_image_pil)  # (c, h, w)
-            ref_image_tensor = ref_image_tensor.unsqueeze(1).unsqueeze(
-                0
-            )  # (1, c, 1, h, w)
-            ref_image_tensor = repeat(
-                ref_image_tensor, "b c f h w -> b c (repeat f) h w", repeat=video_length
-            )
+            for batch_num in range(batch_size):
+                print(f"Processing batch {batch_num+1}/{batch_size}")
+                pose_trans_list = []
+                verts_list = []
+                bs_list = []
+                src_tensor_list = []
 
-            src_tensor = torch.stack(src_tensor_list, dim=0)  # (f, c, h, w)
-            src_tensor = src_tensor.transpose(0, 1)
-            src_tensor = src_tensor.unsqueeze(0)
+                # for src_image_pil in source_images[: args_L: step]:
+                for j in range(args_L):
+                    if batch_num*args_L+j >= total_frames:
+                        break
+                    src_image_pil = source_images[batch_num*args_L+j]
+                    src_tensor_list.append(pose_transform(src_image_pil))
+                    src_img_np = cv2.cvtColor(np.array(src_image_pil), cv2.COLOR_RGB2BGR)
+                    frame_height, frame_width, _ = src_img_np.shape
+                    src_img_result = lmk_extractor(src_img_np)
+                    if src_img_result is None:
+                        break
+                    pose_trans_list.append(src_img_result['trans_mat'])
+                    verts_list.append(src_img_result['lmks3d'])
+                    bs_list.append(src_img_result['bs'])
 
-            video = pipe(
-                ref_image_pil,
-                pose_list,
-                ref_pose,
-                width,
-                height,
-                video_length,
-                args.steps,
-                args.cfg,
-                generator=generator,
-            ).videos
+                
+                pose_arr = np.array(pose_trans_list)
+                verts_arr = np.array(verts_list)
+                bs_arr = np.array(bs_list)
+                min_bs_idx = np.argmin(bs_arr.sum(1))
 
-            video = torch.cat([ref_image_tensor, video, src_tensor], dim=0)
+                # face retarget
+                verts_arr = verts_arr - verts_arr[min_bs_idx] + face_result['lmks3d']
+                # project 3D mesh to 2D landmark
+                projected_vertices = project_points_with_trans(verts_arr, pose_arr, [frame_height, frame_width])
+                
+                pose_list = []
+                for i, verts in enumerate(projected_vertices):
+                    lmk_img = vis.draw_landmarks((frame_width, frame_height), verts, normed=False)
+                    pose_image_np = cv2.resize(lmk_img,  (width, height))
+                    pose_list.append(pose_image_np)
+                
+                pose_list = np.array(pose_list)
+                
+                video_length = len(src_tensor_list)
+
+                ref_image_tensor = pose_transform(ref_image_pil)  # (c, h, w)
+                ref_image_tensor = ref_image_tensor.unsqueeze(1).unsqueeze(
+                    0
+                )  # (1, c, 1, h, w)
+                ref_image_tensor = repeat(
+                    ref_image_tensor, "b c f h w -> b c (repeat f) h w", repeat=video_length
+                )
+
+                src_tensor = torch.stack(src_tensor_list, dim=0)  # (f, c, h, w)
+                src_tensor = src_tensor.transpose(0, 1)
+                src_tensor = src_tensor.unsqueeze(0)
+                # print(f"pose_list: {pose_list.shape}, ref_pose: {ref_pose.shape}, ref_image_tensor: {ref_image_tensor.shape}, src_tensor: {src_tensor.shape}")
+                # input("Press Enter to continue...")
+                video = pipe(
+                    ref_image_pil,
+                    pose_list,
+                    ref_pose,
+                    width,
+                    height,
+                    video_length,
+                    args.steps,
+                    args.cfg,
+                    generator=generator,
+                ).videos
+                if video_list is None:
+                    video_list = video
+                    ref_image_list = ref_image_tensor
+                    ref_src_tensor_list = src_tensor
+                    
+                else: 
+                    video_list = torch.cat([video_list, video], dim=2) 
+                    ref_image_list = torch.cat([ref_image_list, ref_image_tensor], dim=2)
+                    ref_src_tensor_list = torch.cat([ref_src_tensor_list, src_tensor], dim=2)
+  
+
+
+
+ 
+            video = torch.cat([ref_image_list, video_list, ref_src_tensor_list], dim=0)
+
             save_path = f"{save_dir}/{ref_name}_{pose_name}_{args.H}x{args.W}_{int(args.cfg)}_{time_str}_noaudio.mp4"
             save_videos_grid(
                 video,
