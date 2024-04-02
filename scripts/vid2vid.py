@@ -27,7 +27,8 @@ from src.utils.util import get_fps, read_frames, save_videos_grid
 
 from src.utils.mp_utils  import LMKExtractor
 from src.utils.draw_util import FaceMeshVisualizer
-from src.utils.pose_util import project_points_with_trans
+from src.utils.pose_util import project_points_with_trans, matrix_to_euler_and_translation, euler_and_translation_to_matrix
+from scripts.generate_ref_pose import smooth_pose_seq
 
 
 def parse_args():
@@ -154,27 +155,41 @@ def main():
             src_tensor_list = []
             args_L = len(source_images) if args.L is None else args.L*step
             for src_image_pil in source_images[: args_L: step]:
-                src_tensor_list.append(pose_transform(src_image_pil))
                 src_img_np = cv2.cvtColor(np.array(src_image_pil), cv2.COLOR_RGB2BGR)
                 frame_height, frame_width, _ = src_img_np.shape
                 src_img_result = lmk_extractor(src_img_np)
                 if src_img_result is None:
                     break
+                src_tensor_list.append(pose_transform(src_image_pil))
                 pose_trans_list.append(src_img_result['trans_mat'])
                 verts_list.append(src_img_result['lmks3d'])
                 bs_list.append(src_img_result['bs'])
 
-            
-            pose_arr = np.array(pose_trans_list)
+            trans_mat_arr = np.array(pose_trans_list)
             verts_arr = np.array(verts_list)
             bs_arr = np.array(bs_list)
             min_bs_idx = np.argmin(bs_arr.sum(1))
+            
+            # compute delta pose
+            pose_arr = np.zeros([trans_mat_arr.shape[0], 6])
+
+            for i in range(pose_arr.shape[0]):
+                euler_angles, translation_vector = matrix_to_euler_and_translation(trans_mat_arr[i]) # real pose of source
+                pose_arr[i, :3] =  euler_angles
+                pose_arr[i, 3:6] =  translation_vector
+            
+            init_tran_vec = face_result['trans_mat'][:3, 3] # init translation of tgt
+            pose_arr[:, 3:6] = pose_arr[:, 3:6] - pose_arr[0, 3:6] + init_tran_vec # (relative translation of source) + (init translation of tgt)
+
+            pose_arr_smooth = smooth_pose_seq(pose_arr, window_size=3)
+            pose_mat_smooth = [euler_and_translation_to_matrix(pose_arr_smooth[i][:3], pose_arr_smooth[i][3:6]) for i in range(pose_arr_smooth.shape[0])]    
+            pose_mat_smooth = np.array(pose_mat_smooth)   
 
             # face retarget
             verts_arr = verts_arr - verts_arr[min_bs_idx] + face_result['lmks3d']
             # project 3D mesh to 2D landmark
-            projected_vertices = project_points_with_trans(verts_arr, pose_arr, [frame_height, frame_width])
-            
+            projected_vertices = project_points_with_trans(verts_arr, pose_mat_smooth, [frame_height, frame_width])
+
             pose_list = []
             for i, verts in enumerate(projected_vertices):
                 lmk_img = vis.draw_landmarks((frame_width, frame_height), verts, normed=False)
@@ -182,8 +197,8 @@ def main():
                 pose_list.append(pose_image_np)
             
             pose_list = np.array(pose_list)
-            
-            video_length = len(src_tensor_list)
+
+            video_length = len(pose_list)
 
             ref_image_tensor = pose_transform(ref_image_pil)  # (c, h, w)
             ref_image_tensor = ref_image_tensor.unsqueeze(1).unsqueeze(

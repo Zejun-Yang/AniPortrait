@@ -68,3 +68,11 @@ def euler_and_translation_to_matrix(euler_angles, translation_vector):
     matrix[:3, 3] = translation_vector
     
     return matrix
+
+
+def matrix_to_euler_and_translation(matrix):
+    rotation_matrix = matrix[:3, :3]
+    translation_vector = matrix[:3, 3]
+    rotation = R.from_matrix(rotation_matrix)
+    euler_angles = rotation.as_euler('xyz', degrees=True)
+    return euler_angles, translation_vector
