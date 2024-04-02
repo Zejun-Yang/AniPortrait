@@ -57,6 +57,8 @@ def main():
 
         pbar.update(1)
         result = lmk_extractor(frame)
+        if result is None:
+            break
         trans_mat_list.append(result['trans_mat'].astype(np.float32))
     cap.release()
 
