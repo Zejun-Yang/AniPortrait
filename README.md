@@ -23,6 +23,8 @@ audio and a reference portrait image. You can also provide a video to achieve fa
 
 - [x] Update the code to generate pose_temp.npy for head pose control.
 
+- [x] Update a new pose retarget strategy for vid2vid. Now we support substantial pose difference between ref_image and source video.
+
 - [ ] We will release audio2pose pre-trained weight for audio2video after futher optimization. You can choose head pose template in `./configs/inference/head_pose_temp` as substitution.
 
 ## Various Generated Videos
