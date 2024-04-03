@@ -12,18 +12,22 @@ Here we propose AniPortrait, a novel framework for generating high-quality anima
 audio and a reference portrait image. You can also provide a video to achieve face reenacment.
 
 <a href='https://arxiv.org/abs/2403.17694'><img src='https://img.shields.io/badge/Paper-Arxiv-red'></a>
+<a href='https://huggingface.co/ZJYang/AniPortrait/tree/main'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-orange'></a>
+<a href='https://huggingface.co/spaces/ZJYang/AniPortrait_official'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Demo-green'></a>
 
 ## Pipeline
 
 ![pipeline](asset/pipeline.png)
 
-## TODO List
+## Updates / TODO List
 
-- [x] Now our paper is available on arXiv.
+- ✅ [2024/03/27] Now our paper is available on arXiv.
 
-- [x] Update the code to generate pose_temp.npy for head pose control.
+- ✅ [2024/03/27] Update the code to generate pose_temp.npy for head pose control.
 
-- [x] Update a new pose retarget strategy for vid2vid. Now we support substantial pose difference between ref_image and source video.
+- ✅ [2024/04/02] Update a new pose retarget strategy for vid2vid. Now we support substantial pose difference between ref_image and source video.
+
+- ✅ [2024/04/03] We release our Gradio [demo](https://huggingface.co/spaces/ZJYang/AniPortrait_official) on HuggingFace Spaces (thanks to the HF team for their free GPU support)!
 
 - [ ] We will release audio2pose pre-trained weight for audio2video after futher optimization. You can choose head pose template in `./configs/inference/head_pose_temp` as substitution.
 
