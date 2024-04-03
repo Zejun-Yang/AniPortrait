@@ -181,9 +181,9 @@ def main():
                 pose_image_np = cv2.resize(lmk_img,  (width, height))
                 pose_list.append(pose_image_np)
             
+            video_length = min(len(src_tensor_list), len(pose_list))
             pose_list = np.array(pose_list)
             
-            video_length = len(src_tensor_list)
 
             ref_image_tensor = pose_transform(ref_image_pil)  # (c, h, w)
             ref_image_tensor = ref_image_tensor.unsqueeze(1).unsqueeze(
