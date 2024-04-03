@@ -29,7 +29,7 @@ audio and a reference portrait image. You can also provide a video to achieve fa
 
 - ✅ [2024/04/03] We release our Gradio [demo](https://huggingface.co/spaces/ZJYang/AniPortrait_official) on HuggingFace Spaces (thanks to the HF team for their free GPU support)!
 
-- [ ] We will release audio2pose pre-trained weight for audio2video after futher optimization. You can choose head pose template in `./configs/inference/head_pose_temp` as substitution.
+- 🔲 We will release audio2pose pre-trained weight for audio2video after futher optimization. You can choose head pose template in `./configs/inference/head_pose_temp` as substitution.
 
 ## Various Generated Videos
 
