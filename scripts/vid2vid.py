@@ -29,6 +29,7 @@ from src.utils.mp_utils  import LMKExtractor
 from src.utils.draw_util import FaceMeshVisualizer
 from src.utils.pose_util import project_points_with_trans, matrix_to_euler_and_translation, euler_and_translation_to_matrix
 from scripts.generate_ref_pose import smooth_pose_seq
+from src.utils.frame_interpolation import init_frame_interpolation_model, batch_images_interpolation_tool
 
 
 def parse_args():
@@ -41,6 +42,8 @@ def parse_args():
     parser.add_argument("--cfg", type=float, default=3.5)
     parser.add_argument("--steps", type=int, default=25)
     parser.add_argument("--fps", type=int)
+    parser.add_argument("-acc", "--accelerate", action='store_true')
+    parser.add_argument("--fi_step", type=int, default=3)
     args = parser.parse_args()
 
     return args
@@ -119,6 +122,8 @@ def main():
     lmk_extractor = LMKExtractor()
     vis = FaceMeshVisualizer(forehead_edge=False)
     
+    if args.accelerate:
+        frame_inter_model = init_frame_interpolation_model()
 
     for ref_image_path in config["test_cases"].keys():
         # Each ref_image may correspond to multiple actions
@@ -155,12 +160,14 @@ def main():
             src_tensor_list = []
             args_L = len(source_images) if args.L is None else args.L*step
             for src_image_pil in source_images[: args_L: step]:
+                src_tensor_list.append(pose_transform(src_image_pil))
+            sub_step = step*args.fi_step if args.accelerate else step
+            for src_image_pil in source_images[: args_L: sub_step]:
                 src_img_np = cv2.cvtColor(np.array(src_image_pil), cv2.COLOR_RGB2BGR)
                 frame_height, frame_width, _ = src_img_np.shape
                 src_img_result = lmk_extractor(src_img_np)
                 if src_img_result is None:
                     break
-                src_tensor_list.append(pose_transform(src_image_pil))
                 pose_trans_list.append(src_img_result['trans_mat'])
                 verts_list.append(src_img_result['lmks3d'])
                 bs_list.append(src_img_result['bs'])
@@ -200,14 +207,6 @@ def main():
 
             video_length = len(pose_list)
 
-            ref_image_tensor = pose_transform(ref_image_pil)  # (c, h, w)
-            ref_image_tensor = ref_image_tensor.unsqueeze(1).unsqueeze(
-                0
-            )  # (1, c, 1, h, w)
-            ref_image_tensor = repeat(
-                ref_image_tensor, "b c f h w -> b c (repeat f) h w", repeat=video_length
-            )
-
             src_tensor = torch.stack(src_tensor_list, dim=0)  # (f, c, h, w)
             src_tensor = src_tensor.transpose(0, 1)
             src_tensor = src_tensor.unsqueeze(0)
@@ -223,8 +222,19 @@ def main():
                 args.cfg,
                 generator=generator,
             ).videos
+            
+            if args.accelerate:
+                video = batch_images_interpolation_tool(video, frame_inter_model, inter_frames=args.fi_step-1)
+            
+            ref_image_tensor = pose_transform(ref_image_pil)  # (c, h, w)
+            ref_image_tensor = ref_image_tensor.unsqueeze(1).unsqueeze(
+                0
+            )  # (1, c, 1, h, w)
+            ref_image_tensor = repeat(
+                ref_image_tensor, "b c f h w -> b c (repeat f) h w", repeat=video.shape[2]
+            )
 
-            video = torch.cat([ref_image_tensor, video, src_tensor], dim=0)
+            video = torch.cat([ref_image_tensor, video, src_tensor[:,:,:video.shape[2]]], dim=0)
             save_path = f"{save_dir}/{ref_name}_{pose_name}_{args.H}x{args.W}_{int(args.cfg)}_{time_str}_noaudio.mp4"
             save_videos_grid(
                 video,
