@@ -151,7 +151,7 @@ Here are the cli commands for running inference scripts:
 
 Kindly note that you can set -L to the desired number of generating frames in the command, for example, `-L 300`.
 
-**Acceleration method**: If it takes time to generate a long video, you can download [film_net_fp16.pt](https://huggingface.co/ZJYang/AniPortrait/tree/main) and put it under the `./pretrained_weights` direcotry. Then add `-acc` in the command.
+**Acceleration method**: If it takes long time to generate a video, you can download [film_net_fp16.pt](https://huggingface.co/ZJYang/AniPortrait/tree/main) and put it under the `./pretrained_weights` direcotry. Then add `-acc` in the command.
 
 ### Self driven
 
