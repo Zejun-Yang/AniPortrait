@@ -29,6 +29,8 @@ audio and a reference portrait image. You can also provide a video to achieve fa
 
 - ✅ [2024/04/03] We release our Gradio [demo](https://huggingface.co/spaces/ZJYang/AniPortrait_official) on HuggingFace Spaces (thanks to the HF team for their free GPU support)!
 
+- ✅ [2024/04/07] Update a frame interpolation module to accelerate the inference process. Now you can add -acc in inference commands to get a faster video generation.
+
 - 🔲 We will release audio2pose pre-trained weight for audio2video after futher optimization. You can choose head pose template in `./configs/inference/head_pose_temp` as substitution.
 
 ## Various Generated Videos
@@ -97,7 +99,7 @@ pip install -r requirements.txt
 
 All the weights should be placed under the `./pretrained_weights` direcotry. You can download weights manually as follows:
 
-1. Download our trained [weights](https://huggingface.co/ZJYang/AniPortrait/tree/main), which include four parts: `denoising_unet.pth`, `reference_unet.pth`, `pose_guider.pth`, `motion_module.pth` and `audio2mesh.pt`.
+1. Download our trained [weights](https://huggingface.co/ZJYang/AniPortrait/tree/main), which include four parts: `denoising_unet.pth`, `reference_unet.pth`, `pose_guider.pth`, `motion_module.pth`, `audio2mesh.pt` and `film_net_fp16.pt`.
 
 2. Download pretrained weight of based models and other components: 
     - [StableDiffusion V1.5](https://huggingface.co/runwayml/stable-diffusion-v1-5)
@@ -135,6 +137,7 @@ Finally, these weights should be orgnized as follows:
 |   `-- vocab.json
 |-- audio2mesh.pt
 |-- denoising_unet.pth
+|-- film_net_fp16.pt
 |-- motion_module.pth
 |-- pose_guider.pth
 `-- reference_unet.pth
@@ -146,12 +149,14 @@ Note: If you have installed some of the pretrained models, such as `StableDiffus
 
 Here are the cli commands for running inference scripts:
 
-**Kindly note that you can set -L to the desired number of generating frames in the command, for example, -L 300.**
+Kindly note that you can set -L to the desired number of generating frames in the command, for example, `-L 300`.
+
+**Acceleration method**: If it takes time to generate a long video, you can download [film_net_fp16.pt](https://huggingface.co/ZJYang/AniPortrait/tree/main) and put it under the `./pretrained_weights` direcotry. Then add `-acc` in the command.
 
 ### Self driven
 
 ```shell
-python -m scripts.pose2vid --config ./configs/prompts/animation.yaml -W 512 -H 512
+python -m scripts.pose2vid --config ./configs/prompts/animation.yaml -W 512 -H 512 -acc
 ```
 
 You can refer the format of animation.yaml to add your own reference images or pose videos. To convert the raw video into a pose video (keypoint sequence), you can run with the following command:
@@ -163,7 +168,7 @@ python -m scripts.vid2pose --video_path pose_video_path.mp4
 ### Face reenacment
 
 ```shell
-python -m scripts.vid2vid --config ./configs/prompts/animation_facereenac.yaml -W 512 -H 512
+python -m scripts.vid2vid --config ./configs/prompts/animation_facereenac.yaml -W 512 -H 512 -acc
 ```
 
 Add source face videos and reference images in the animation_facereenac.yaml.
@@ -171,7 +176,7 @@ Add source face videos and reference images in the animation_facereenac.yaml.
 ### Audio driven
 
 ```shell
-python -m scripts.audio2vid --config ./configs/prompts/animation_audio.yaml -W 512 -H 512
+python -m scripts.audio2vid --config ./configs/prompts/animation_audio.yaml -W 512 -H 512 -acc
 ```
 
 Add audios and reference images in the animation_audio.yaml.
