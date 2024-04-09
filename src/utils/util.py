@@ -3,6 +3,7 @@ import os
 import os.path as osp
 import shutil
 import sys
+import cv2
 from pathlib import Path
 
 import av
@@ -126,3 +127,55 @@ def get_fps(video_path):
     fps = video_stream.average_rate
     container.close()
     return fps
+
+def crop_face(img, lmk_extractor, expand=1.5):
+    result = lmk_extractor(img)  # cv2 BGR
+
+    if result is None:
+        return None
+    
+    H, W, _ = img.shape
+    lmks = result['lmks']
+    lmks[:, 0] *= W
+    lmks[:, 1] *= H
+
+    x_min = np.min(lmks[:, 0])
+    x_max = np.max(lmks[:, 0])
+    y_min = np.min(lmks[:, 1])
+    y_max = np.max(lmks[:, 1])
+
+    width = x_max - x_min
+    height = y_max - y_min
+    
+    if width*height >= W*H*0.15:
+        if W == H:
+            return img
+        size = min(H, W)
+        offset = int((max(H, W) - size)/2)
+        if size == H:
+            return img[:, offset:-offset]
+        else:
+            return img[offset:-offset, :]
+    else:
+        center_x = x_min + width / 2
+        center_y = y_min + height / 2
+
+        width *= expand
+        height *= expand
+
+        size = max(width, height)
+
+        x_min = int(center_x - size / 2)
+        x_max = int(center_x + size / 2)
+        y_min = int(center_y - size / 2)
+        y_max = int(center_y + size / 2)
+
+        top = max(0, -y_min)
+        bottom = max(0, y_max - img.shape[0])
+        left = max(0, -x_min)
+        right = max(0, x_max - img.shape[1])
+        img = cv2.copyMakeBorder(img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=0)
+
+        cropped_img = img[y_min + top:y_max + top, x_min + left:x_max + left]
+
+    return cropped_img

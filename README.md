@@ -99,7 +99,7 @@ pip install -r requirements.txt
 
 All the weights should be placed under the `./pretrained_weights` direcotry. You can download weights manually as follows:
 
-1. Download our trained [weights](https://huggingface.co/ZJYang/AniPortrait/tree/main), which include four parts: `denoising_unet.pth`, `reference_unet.pth`, `pose_guider.pth`, `motion_module.pth`, `audio2mesh.pt` and `film_net_fp16.pt`.
+1. Download our trained [weights](https://huggingface.co/ZJYang/AniPortrait/tree/main), which include six parts: `denoising_unet.pth`, `reference_unet.pth`, `pose_guider.pth`, `motion_module.pth`, `audio2mesh.pt` and `film_net_fp16.pt`.
 
 2. Download pretrained weight of based models and other components: 
     - [StableDiffusion V1.5](https://huggingface.co/runwayml/stable-diffusion-v1-5)
@@ -144,6 +144,16 @@ Finally, these weights should be orgnized as follows:
 ```
 
 Note: If you have installed some of the pretrained models, such as `StableDiffusion V1.5`, you can specify their paths in the config file (e.g. `./config/prompts/animation.yaml`).
+
+
+## Gradio Web UI
+
+You can try out our web demo by the following command. We alse provide online demo <a href='https://huggingface.co/spaces/ZJYang/AniPortrait_official'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Demo-green'></a> in Huggingface Spaces.
+
+
+```shell
+python -m scripts.app
+```
 
 ## Inference
 

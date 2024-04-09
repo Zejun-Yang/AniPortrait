@@ -4,6 +4,8 @@ clip @ https://github.com/openai/CLIP/archive/d50d76daa670286dd6cacf3bcd80b5e482
 decord==0.6.0
 diffusers==0.24.0
 einops==0.4.1
+gradio==4.24.0
+gradio_client==0.14.0
 imageio==2.33.0
 imageio-ffmpeg==0.4.9
 numpy==1.24.4
