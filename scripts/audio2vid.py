@@ -149,7 +149,7 @@ def main():
             lmks = face_result['lmks'].astype(np.float32)
             ref_pose = vis.draw_landmarks((ref_image_np.shape[1], ref_image_np.shape[0]), lmks, normed=True)
             
-            sample = prepare_audio_feature(audio_path, wav2vec_model_path=audio_infer_config['a2m_model']['model_path'])
+            sample = prepare_audio_feature(audio_path, fps=args.fps, wav2vec_model_path=audio_infer_config['a2m_model']['model_path'])
             sample['audio_feature'] = torch.from_numpy(sample['audio_feature']).float().cuda()
             sample['audio_feature'] = sample['audio_feature'].unsqueeze(0)
 
