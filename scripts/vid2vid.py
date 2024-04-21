@@ -27,8 +27,7 @@ from src.utils.util import get_fps, read_frames, save_videos_grid
 
 from src.utils.mp_utils  import LMKExtractor
 from src.utils.draw_util import FaceMeshVisualizer
-from src.utils.pose_util import project_points_with_trans, matrix_to_euler_and_translation, euler_and_translation_to_matrix
-from scripts.generate_ref_pose import smooth_pose_seq
+from src.utils.pose_util import project_points_with_trans, matrix_to_euler_and_translation, euler_and_translation_to_matrix, smooth_pose_seq
 from src.utils.frame_interpolation import init_frame_interpolation_model, batch_images_interpolation_tool
 
 

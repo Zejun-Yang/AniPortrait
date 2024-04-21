@@ -76,3 +76,14 @@ def matrix_to_euler_and_translation(matrix):
     rotation = R.from_matrix(rotation_matrix)
     euler_angles = rotation.as_euler('xyz', degrees=True)
     return euler_angles, translation_vector
+
+
+def smooth_pose_seq(pose_seq, window_size=5):
+    smoothed_pose_seq = np.zeros_like(pose_seq)
+
+    for i in range(len(pose_seq)):
+        start = max(0, i - window_size // 2)
+        end = min(len(pose_seq), i + window_size // 2 + 1)
+        smoothed_pose_seq[i] = np.mean(pose_seq[start:end], axis=0)
+
+    return smoothed_pose_seq

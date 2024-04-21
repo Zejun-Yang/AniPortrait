@@ -9,6 +9,7 @@ from scipy.spatial.transform import Rotation as R
 from scipy.interpolate import interp1d
 
 from src.utils.mp_utils  import LMKExtractor
+from src.utils.pose_util import smooth_pose_seq, matrix_to_euler_and_translation
 
 
 def parse_args():
@@ -18,24 +19,6 @@ def parse_args():
     args = parser.parse_args()
     return args
 
-
-def matrix_to_euler_and_translation(matrix):
-    rotation_matrix = matrix[:3, :3]
-    translation_vector = matrix[:3, 3]
-    rotation = R.from_matrix(rotation_matrix)
-    euler_angles = rotation.as_euler('xyz', degrees=True)
-    return euler_angles, translation_vector
-
-
-def smooth_pose_seq(pose_seq, window_size=5):
-    smoothed_pose_seq = np.zeros_like(pose_seq)
-
-    for i in range(len(pose_seq)):
-        start = max(0, i - window_size // 2)
-        end = min(len(pose_seq), i + window_size // 2 + 1)
-        smoothed_pose_seq[i] = np.mean(pose_seq[start:end], axis=0)
-
-    return smoothed_pose_seq
 
 def main():
     args = parse_args()
