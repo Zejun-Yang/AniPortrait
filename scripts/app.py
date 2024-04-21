@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 import numpy as np
 import cv2
+import random
 import torch
 
 from diffusers import AutoencoderKL, DDIMScheduler
@@ -23,12 +24,12 @@ from src.pipelines.pipeline_pose2vid_long import Pose2VideoPipeline
 from src.utils.util import get_fps, read_frames, save_videos_grid
 
 from src.audio_models.model import Audio2MeshModel
+from src.audio_models.pose_model import Audio2PoseModel
 from src.utils.audio_util import prepare_audio_feature
 from src.utils.mp_utils  import LMKExtractor
 from src.utils.draw_util import FaceMeshVisualizer
-from src.utils.pose_util import project_points, project_points_with_trans, matrix_to_euler_and_translation, euler_and_translation_to_matrix
+from src.utils.pose_util import project_points, project_points_with_trans, matrix_to_euler_and_translation, euler_and_translation_to_matrix, smooth_pose_seq
 from src.utils.util import crop_face
-from scripts.vid2vid import smooth_pose_seq
 from src.utils.frame_interpolation import init_frame_interpolation_model, batch_images_interpolation_tool
 
 
@@ -43,6 +44,10 @@ audio_infer_config = OmegaConf.load(config.audio_inference_config)
 a2m_model = Audio2MeshModel(audio_infer_config['a2m_model'])
 a2m_model.load_state_dict(torch.load(audio_infer_config['pretrained_model']['a2m_ckpt'], map_location="cpu"), strict=False)
 a2m_model.cuda().eval()
+
+a2p_model = Audio2PoseModel(audio_infer_config['a2p_model'])
+a2p_model.load_state_dict(torch.load(audio_infer_config['pretrained_model']['a2p_ckpt']), strict=False)
+a2p_model.cuda().eval()
 
 vae = AutoencoderKL.from_pretrained(
     config.pretrained_vae_path,
@@ -186,13 +191,38 @@ def audio2video(input_audio, ref_img, headpose_video=None, size=512, steps=25, l
     
     if headpose_video is not None:
         pose_seq = get_headpose_temp(headpose_video)
+        mirrored_pose_seq = np.concatenate((pose_seq, pose_seq[-2:0:-1]), axis=0)
+        pose_seq = np.tile(mirrored_pose_seq, (sample['seq_len'] // len(mirrored_pose_seq) + 1, 1))[:sample['seq_len']]
     else:
-        pose_seq = np.load(config['pose_temp'])
-    mirrored_pose_seq = np.concatenate((pose_seq, pose_seq[-2:0:-1]), axis=0)
-    cycled_pose_seq = np.tile(mirrored_pose_seq, (sample['seq_len'] // len(mirrored_pose_seq) + 1, 1))[:sample['seq_len']]
+        id_seed = random.randint(0, 99)
+        id_seed = torch.LongTensor([id_seed]).cuda()
 
+        # Currently, only inference up to a maximum length of 10 seconds is supported.
+        chunk_duration = 5 # 5 seconds
+        sr = 16000
+        fps = 30
+        chunk_size = sr * chunk_duration 
+
+        audio_chunks = list(sample['audio_feature'].split(chunk_size, dim=1))
+        seq_len_list = [chunk_duration*fps] * (len(audio_chunks) - 1) + [sample['seq_len'] % (chunk_duration*fps)] # 30 fps 
+
+        audio_chunks[-2] = torch.cat((audio_chunks[-2], audio_chunks[-1]), dim=1)
+        seq_len_list[-2] = seq_len_list[-2] + seq_len_list[-1]
+        del audio_chunks[-1]
+        del seq_len_list[-1]
+
+        pose_seq = []
+        for audio, seq_len in zip(audio_chunks, seq_len_list):
+            pose_seq_chunk = a2p_model.infer(audio, seq_len, id_seed)
+            pose_seq_chunk = pose_seq_chunk.squeeze().detach().cpu().numpy()
+            pose_seq_chunk[:, :3] *= 0.5
+            pose_seq.append(pose_seq_chunk)
+        
+        pose_seq = np.concatenate(pose_seq, 0)
+        pose_seq = smooth_pose_seq(pose_seq, 7)
+    
     # project 3D mesh to 2D landmark
-    projected_vertices = project_points(pred, face_result['trans_mat'], cycled_pose_seq, [height, width])
+    projected_vertices = project_points(pred, face_result['trans_mat'], pose_seq, [height, width])
 
     pose_images = []
     for i, verts in enumerate(projected_vertices):

@@ -11,7 +11,8 @@ audio_inference_config: "./configs/inference/inference_audio.yaml"
 inference_config: "./configs/inference/inference_v2.yaml"
 weight_dtype: 'fp16'
 
-pose_temp: "./configs/inference/head_pose_temp/pose_temp.npy"
+# path of your custom head pose template
+# pose_temp: "./configs/inference/head_pose_temp/pose_temp.npy"
 
 test_cases:
   "./configs/inference/ref_images/lyl.png":

@@ -31,7 +31,7 @@ audio and a reference portrait image. You can also provide a video to achieve fa
 
 - ✅ [2024/04/07] Update a frame interpolation module to accelerate the inference process. Now you can add -acc in inference commands to get a faster video generation.
 
-- 🔲 We will release audio2pose pre-trained weight for audio2video after futher optimization. You can choose head pose template in `./configs/inference/head_pose_temp` as substitution.
+- ✅ [2024/04/21] We have released the audio2pose model and [pre-trained weight](https://huggingface.co/ZJYang/AniPortrait/tree/main) for audio2video. Please update the code and download the weight file to experience.
 
 ## Various Generated Videos
 
@@ -99,7 +99,7 @@ pip install -r requirements.txt
 
 All the weights should be placed under the `./pretrained_weights` direcotry. You can download weights manually as follows:
 
-1. Download our trained [weights](https://huggingface.co/ZJYang/AniPortrait/tree/main), which include six parts: `denoising_unet.pth`, `reference_unet.pth`, `pose_guider.pth`, `motion_module.pth`, `audio2mesh.pt` and `film_net_fp16.pt`.
+1. Download our trained [weights](https://huggingface.co/ZJYang/AniPortrait/tree/main), which include the following parts: `denoising_unet.pth`, `reference_unet.pth`, `pose_guider.pth`, `motion_module.pth`, `audio2mesh.pt`, `audio2pose.pt` and `film_net_fp16.pt`. 
 
 2. Download pretrained weight of based models and other components: 
     - [StableDiffusion V1.5](https://huggingface.co/runwayml/stable-diffusion-v1-5)
@@ -136,6 +136,7 @@ Finally, these weights should be orgnized as follows:
 |   |-- tokenizer_config.json
 |   `-- vocab.json
 |-- audio2mesh.pt
+|-- audio2pose.pt
 |-- denoising_unet.pth
 |-- film_net_fp16.pt
 |-- motion_module.pth
@@ -157,11 +158,11 @@ python -m scripts.app
 
 ## Inference
 
-Here are the cli commands for running inference scripts:
-
 Kindly note that you can set -L to the desired number of generating frames in the command, for example, `-L 300`.
 
 **Acceleration method**: If it takes long time to generate a video, you can download [film_net_fp16.pt](https://huggingface.co/ZJYang/AniPortrait/tree/main) and put it under the `./pretrained_weights` direcotry. Then add `-acc` in the command.
+
+Here are the cli commands for running inference scripts:
 
 ### Self driven
 
@@ -191,7 +192,9 @@ python -m scripts.audio2vid --config ./configs/prompts/animation_audio.yaml -W 5
 
 Add audios and reference images in the animation_audio.yaml.
 
-You can use this command to generate a pose_temp.npy for head pose control:
+Delete `pose_temp` in `./configs/prompts/animation_audio.yaml` can enable the audio2pose model.
+
+You can also use this command to generate a pose_temp.npy for head pose control:
 
 ```shell
 python -m scripts.generate_ref_pose --ref_video ./configs/inference/head_pose_temp/pose_ref_video.mp4 --save_path ./configs/inference/head_pose_temp/pose.npy
