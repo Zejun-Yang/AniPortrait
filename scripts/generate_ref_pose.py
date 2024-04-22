@@ -44,6 +44,8 @@ def main():
             break
         trans_mat_list.append(result['trans_mat'].astype(np.float32))
     cap.release()
+    
+    total_frames = len(trans_mat_list)
 
     trans_mat_arr = np.array(trans_mat_list)
 
