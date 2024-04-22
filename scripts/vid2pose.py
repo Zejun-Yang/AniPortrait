@@ -36,7 +36,7 @@ if __name__ == "__main__":
     kps_results = []
     for i, frame_pil in enumerate(tqdm(frames)):
         image_np = cv2.cvtColor(np.array(frame_pil), cv2.COLOR_RGB2BGR)
-        image_np = cv2.resize(image_np, (height, width))
+        image_np = cv2.resize(image_np, (width, height))
         face_result = lmk_extractor(image_np)
         try:
             lmks = face_result['lmks'].astype(np.float32)
