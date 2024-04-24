@@ -9,7 +9,7 @@ Organization: Tencent Games Zhiji, Tencent
 ![zhiji_logo](asset/zhiji_logo.png)
 
 Here we propose AniPortrait, a novel framework for generating high-quality animation driven by 
-audio and a reference portrait image. You can also provide a video to achieve face reenacment.
+audio and a reference portrait image. You can also provide a video to achieve face reenactment.
 
 <a href='https://arxiv.org/abs/2403.17694'><img src='https://img.shields.io/badge/Paper-Arxiv-red'></a>
 <a href='https://huggingface.co/ZJYang/AniPortrait/tree/main'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-orange'></a>
@@ -48,7 +48,7 @@ audio and a reference portrait image. You can also provide a video to achieve fa
 </tr>
 </table>
 
-### Face reenacment
+### Face reenactment
 
 <table class="center">
 <tr>
@@ -176,7 +176,7 @@ You can refer the format of animation.yaml to add your own reference images or p
 python -m scripts.vid2pose --video_path pose_video_path.mp4
 ```
 
-### Face reenacment
+### Face reenactment
 
 ```shell
 python -m scripts.vid2vid --config ./configs/prompts/animation_facereenac.yaml -W 512 -H 512 -acc
