@@ -131,7 +131,7 @@ def main():
 
             ref_image_pil = Image.open(ref_image_path).convert("RGB")
             ref_image_np = cv2.cvtColor(np.array(ref_image_pil), cv2.COLOR_RGB2BGR)
-            ref_image_np = cv2.resize(ref_image_np, (args.H, args.W))
+            ref_image_np = cv2.resize(ref_image_np, (args.W, args.H))
             
             face_result = lmk_extractor(ref_image_np)
             assert face_result is not None, "Can not detect a face in the reference image."
