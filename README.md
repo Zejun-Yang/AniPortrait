@@ -92,6 +92,7 @@ Video Source: [鹿火CAVY from bilibili](https://www.bilibili.com/video/BV1H4421
 We recommend a python version >=3.10 and cuda version =11.7. Then build environment as follows:
 
 ```shell
+conda install ffmpeg
 pip install -r requirements.txt
 ```
 
