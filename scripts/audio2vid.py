@@ -177,14 +177,17 @@ def main():
                 sr = 16000
                 fps = 30
                 chunk_size = sr * chunk_duration 
-
                 audio_chunks = list(sample['audio_feature'].split(chunk_size, dim=1))
-                seq_len_list = [chunk_duration*fps] * (len(audio_chunks) - 1) + [sample['seq_len'] % (chunk_duration*fps)] # 30 fps 
-
-                audio_chunks[-2] = torch.cat((audio_chunks[-2], audio_chunks[-1]), dim=1)
-                seq_len_list[-2] = seq_len_list[-2] + seq_len_list[-1]
-                del audio_chunks[-1]
-                del seq_len_list[-1]
+                if len(audio_chunks) == 1:
+                    seq_len_list = [sample['seq_len']]
+                elif sample["seq_len"] % (chunk_duration * fps) != 0:
+                    seq_len_list = [chunk_duration*fps] * (len(audio_chunks) - 1) + [sample['seq_len'] % (chunk_duration*fps)] # 30 fps 
+                    audio_chunks[-2] = torch.cat((audio_chunks[-2], audio_chunks[-1]), dim=1)
+                    seq_len_list[-2] = seq_len_list[-2] + seq_len_list[-1]
+                    del audio_chunks[-1]
+                    del seq_len_list[-1]
+                else:
+                    seq_len_list = [chunk_duration*fps] * len(audio_chunks)
     
                 pose_seq = []
                 for audio, seq_len in zip(audio_chunks, seq_len_list):
