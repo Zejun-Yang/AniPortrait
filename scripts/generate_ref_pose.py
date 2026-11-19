@@ -27,24 +27,33 @@ def main():
 
     cap = cv2.VideoCapture(args.ref_video)
 
-    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    fps = cap.get(cv2.CAP_PROP_FPS)  
+    try:
+        if not cap.isOpened():
+            raise ValueError(f"Could not open reference video: {args.ref_video}")
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        fps = cap.get(cv2.CAP_PROP_FPS)
 
-    pbar = tqdm(range(total_frames), desc="processing ...")
-    
-    trans_mat_list = []
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
+        pbar = tqdm(range(total_frames), desc="processing ...")
 
-        pbar.update(1)
-        result = lmk_extractor(frame)
-        if result is None:
-            break
-        trans_mat_list.append(result['trans_mat'].astype(np.float32))
-    cap.release()
-    
+        trans_mat_list = []
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            pbar.update(1)
+            result = lmk_extractor(frame)
+            if result is None:
+                break
+            trans_mat_list.append(result['trans_mat'].astype(np.float32))
+    finally:
+        cap.release()
+
+    if not math.isfinite(fps) or fps <= 0:
+        raise ValueError(f"Invalid frame rate for reference video: {args.ref_video}")
+    if len(trans_mat_list) < 2:
+        raise ValueError(f"Expected at least two valid poses in reference video: {args.ref_video}")
+
     total_frames = len(trans_mat_list)
 
     trans_mat_arr = np.array(trans_mat_list)
